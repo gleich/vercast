@@ -10,11 +10,22 @@
       "title": "vercast",
       "subtitle": "",
       "description": "View your vercel deployments",
-      "mode": "view"
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "token",
+          "type": "password",
+          "required": true,
+          "title": "Token",
+          "description": "Account Token",
+          "link": "https://vercel.com/account/tokens"
+        }
+      ]
     }
   ],
   "dependencies": {
     "@raycast/api": "^0.1.0",
+    "dayjs": "^1.10.7",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
