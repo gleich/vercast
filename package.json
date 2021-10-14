@@ -1,15 +1,16 @@
 {
   "name": "vercast",
-  "title": "vercast",
-  "description": "View your vercel deployments",
+  "title": "Vercast",
+  "description": "Search Vercel Deployments",
   "icon": "icon.png",
   "author": "matt",
+  "license": "MPL-2.0",
   "commands": [
     {
       "name": "index",
       "title": "vercast",
       "subtitle": "",
-      "description": "View your vercel deployments",
+      "description": "Search Vercel Deployments",
       "mode": "view",
       "preferences": [
         {
