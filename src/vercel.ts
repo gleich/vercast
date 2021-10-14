@@ -68,13 +68,13 @@ export async function fetchDeployments(username: string): Promise<Deployment[]> 
             state: state,
             time: dayjs(deployment.createdAt).fromNow(),
             id: deployment.id,
-            url: deployment.url,
+            url: `https://vercel.com/${username}/${project.name}/${deployment.id.replace("dpl_", "")}`,
           });
           break;
         }
       }
-      return deployments;
     }
+    return deployments;
   } catch (err) {
     console.error(err);
     showToast(ToastStyle.Failure, "Failed to fetch deployments");
