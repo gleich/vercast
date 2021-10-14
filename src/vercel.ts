@@ -3,6 +3,11 @@ import fetch, { Headers } from "node-fetch";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
+const headers = new Headers({
+  Authorization: "Bearer " + preferences.token.value,
+});
+const apiURL = "https://api.vercel.com/";
+
 export enum DeploymentState {
   ready,
   failed,
@@ -13,30 +18,28 @@ export interface Deployment {
   project: string;
   state: DeploymentState;
   time: string;
+  id: string;
+  url: string;
 }
 
-export async function fetchDeployments(): Promise<Deployment[]> {
+export async function fetchUsername(): Promise<string> {
+  // Getting username
+  const response = await fetch(apiURL + "www/user", {
+    method: "get",
+    headers: headers,
+  });
+  const json = await response.json();
+  return json.user.username;
+}
+
+export async function fetchDeployments(username: string): Promise<Deployment[]> {
   dayjs.extend(relativeTime);
 
-  const headers = new Headers({
-    Authorization: "Bearer " + preferences.token.value,
-  });
-  const apiURL = "https://api.vercel.com/";
-
-  // Getting username
-  let response = await fetch(apiURL + "www/user", {
+  const response = await fetch(apiURL + "v8/projects", {
     method: "get",
     headers: headers,
   });
-  let json = await response.json();
-  const username = json.user.username;
-
-  // Getting deployments made by the user
-  response = await fetch(apiURL + "v8/projects", {
-    method: "get",
-    headers: headers,
-  });
-  json = await response.json();
+  const json = await response.json();
   const deployments: Deployment[] = [];
   for (const project of json.projects) {
     for (const deployment of project.latestDeployments) {
@@ -46,7 +49,8 @@ export async function fetchDeployments(): Promise<Deployment[]> {
           case "READY":
             state = DeploymentState.ready;
             break;
-          case "QUEUED" || "BUILDING":
+          case "BUILDING":
+          case "QUEUED":
             state = DeploymentState.deploying;
             break;
           default:
@@ -57,6 +61,8 @@ export async function fetchDeployments(): Promise<Deployment[]> {
           project: project.name,
           state: state,
           time: dayjs(deployment.createdAt).fromNow(),
+          id: deployment.id,
+          url: deployment.url,
         });
         break;
       }
