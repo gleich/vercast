@@ -24,10 +24,9 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^0.1.0",
+    "@raycast/api": "^1.25.0",
     "dayjs": "^1.10.7",
-    "node-fetch": "^2.6.1",
-    "use-interval": "^1.3.0"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "@types/node": "^16.4.3",
