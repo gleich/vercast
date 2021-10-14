@@ -1,4 +1,4 @@
-import { preferences } from "@raycast/api";
+import { preferences, showToast, ToastStyle } from "@raycast/api";
 import fetch, { Headers } from "node-fetch";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -23,50 +23,61 @@ export interface Deployment {
 }
 
 export async function fetchUsername(): Promise<string> {
-  // Getting username
-  const response = await fetch(apiURL + "www/user", {
-    method: "get",
-    headers: headers,
-  });
-  const json = await response.json();
-  return json.user.username;
+  try {
+    const response = await fetch(apiURL + "www/user", {
+      method: "get",
+      headers: headers,
+    });
+    const json = await response.json();
+    return json.user.username;
+  } catch (err) {
+    console.error(err);
+    showToast(ToastStyle.Failure, "Failed to fetch username");
+  }
+  return Promise.resolve("");
 }
 
 export async function fetchDeployments(username: string): Promise<Deployment[]> {
   dayjs.extend(relativeTime);
 
-  const response = await fetch(apiURL + "v8/projects", {
-    method: "get",
-    headers: headers,
-  });
-  const json = await response.json();
-  const deployments: Deployment[] = [];
-  for (const project of json.projects) {
-    for (const deployment of project.latestDeployments) {
-      if (deployment.creator.username === username) {
-        let state: DeploymentState;
-        switch (deployment.readyState.toUpperCase()) {
-          case "READY":
-            state = DeploymentState.ready;
-            break;
-          case "BUILDING":
-          case "QUEUED":
-            state = DeploymentState.deploying;
-            break;
-          default:
-            state = DeploymentState.failed;
-            break;
+  try {
+    const response = await fetch(apiURL + "v8/projects", {
+      method: "get",
+      headers: headers,
+    });
+    const json = await response.json();
+    const deployments: Deployment[] = [];
+    for (const project of json.projects) {
+      for (const deployment of project.latestDeployments) {
+        if (deployment.creator.username === username) {
+          let state: DeploymentState;
+          switch (deployment.readyState.toUpperCase()) {
+            case "READY":
+              state = DeploymentState.ready;
+              break;
+            case "BUILDING":
+            case "QUEUED":
+              state = DeploymentState.deploying;
+              break;
+            default:
+              state = DeploymentState.failed;
+              break;
+          }
+          deployments.push({
+            project: project.name,
+            state: state,
+            time: dayjs(deployment.createdAt).fromNow(),
+            id: deployment.id,
+            url: deployment.url,
+          });
+          break;
         }
-        deployments.push({
-          project: project.name,
-          state: state,
-          time: dayjs(deployment.createdAt).fromNow(),
-          id: deployment.id,
-          url: deployment.url,
-        });
-        break;
       }
+      return deployments;
     }
+  } catch (err) {
+    console.error(err);
+    showToast(ToastStyle.Failure, "Failed to fetch deployments");
   }
-  return deployments;
+  return Promise.resolve([]);
 }
