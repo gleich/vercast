@@ -2,7 +2,7 @@
   "name": "vercast",
   "title": "vercast",
   "description": "View your vercel deployments",
-  "icon": "command-icon.png",
+  "icon": "vercel-icon.png",
   "author": "matt",
   "commands": [
     {
