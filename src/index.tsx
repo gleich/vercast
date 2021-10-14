@@ -50,6 +50,7 @@ function Main(): JSX.Element {
             key={d.id}
             id={d.id}
             title={d.project}
+            subtitle={d.domain}
             accessoryTitle={d.time}
             icon={{ tintColor: iconTintColor, source: iconSource }}
             actions={
