@@ -22,6 +22,7 @@ export interface Deployment {
   id: string
   url: string
   domain: string
+  owner: string
 }
 
 export async function fetchUsername(): Promise<string> {
@@ -39,36 +40,46 @@ export async function fetchUsername(): Promise<string> {
   }
 }
 
+export async function fetchTeams(
+  ignoredTeamIDs: string[]
+): Promise<Record<string, string>> {
+  const response = await fetch(apiURL + 'v1/teams', {
+    method: 'get',
+    headers: headers,
+  })
+  const json = await response.json()
+  const teams: Record<string, string> = {}
+  for (const team of json.teams) {
+    teams[team.id] = team.slug
+  }
+  if (ignoredTeamIDs.length > 0) {
+    for (const ignoredTeamID of ignoredTeamIDs) {
+      if (teams[ignoredTeamID]) {
+        delete teams[ignoredTeamID]
+      }
+    }
+  }
+  return teams
+}
+
 export async function fetchDeployments(
   username: string,
-  ignoredTeamIDs: string[]
+  teams: Record<string, string>
 ): Promise<Deployment[]> {
   dayjs.extend(relativeTime)
-
   try {
-    let response = await fetch(apiURL + 'v1/teams', {
-      method: 'get',
-      headers: headers,
-    })
-    let json = await response.json()
-    let teams: string[] = []
-    for (const team of json.teams) {
-      teams.push(team.id)
-    }
-    if (ignoredTeamIDs.length > 0) {
-      teams = teams.filter((id) => ignoredTeamIDs.includes(id))
-    }
-
     const deployments: Deployment[] = []
-    for (let i = 0; i < teams.length + 1; i++) {
-      response = await fetch(
-        apiURL + `v8/projects${i === 0 ? '' : '?teamId=' + teams[i]}`,
+    const teamIDs = Object.keys(teams)
+    for (let i = -1; i < teamIDs.length; i++) {
+      console.log(teams[teamIDs[i]])
+      const response = await fetch(
+        apiURL + `v8/projects${i === -1 ? '' : '?teamId=' + teams[teamIDs[i]]}`,
         {
           method: 'get',
           headers: headers,
         }
       )
-      json = await response.json()
+      const json = await response.json()
       for (const project of json.projects) {
         for (const deployment of project.latestDeployments) {
           if (deployment.creator.username === username) {
@@ -85,15 +96,17 @@ export async function fetchDeployments(
                 state = DeploymentState.failed
                 break
             }
+            const owner = i === -1 ? username : teams[teamIDs[i]]
             deployments.push({
               project: project.name,
               state: state,
               timeSince: dayjs(deployment.createdAt).fromNow(),
               id: deployment.id,
-              url: `https://vercel.com/${username}/${
+              url: `https://vercel.com/${owner}/${
                 project.name
               }/${deployment.id.replace('dpl_', '')}`,
               domain: deployment.alias[0],
+              owner,
               rawTime: deployment.createdAt,
             })
             break
