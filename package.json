@@ -1,7 +1,7 @@
 {
   "name": "vercast",
-  "title": "Search Vercel Deployments",
-  "description": "Quickly open and check the status of your Vercel deployments.",
+  "title": "Vercel Deployments",
+  "description": "View your Vercel deployments",
   "icon": "icon.png",
   "author": "matt",
   "license": "MPL-2.0",
@@ -10,7 +10,7 @@
       "name": "index",
       "title": "Search Vercel Deployments",
       "subtitle": "Vercel",
-      "description": "Search Vercel Deployments",
+      "description": "Search over your Vercel deployments",
       "mode": "view",
       "preferences": [
         {
