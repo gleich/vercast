@@ -39,7 +39,8 @@ export async function fetchUsername(): Promise<string> {
 }
 
 export async function fetchDeployments(
-  username: string
+  username: string,
+  ignoredTeamIDs: string[]
 ): Promise<Deployment[]> {
   dayjs.extend(relativeTime)
 
@@ -49,9 +50,12 @@ export async function fetchDeployments(
       headers: headers,
     })
     let json = await response.json()
-    const teams: string[] = []
+    let teams: string[] = []
     for (const team of json.teams) {
       teams.push(team.id)
+    }
+    if (ignoredTeamIDs.length > 0) {
+      teams = teams.filter((id) => ignoredTeamIDs.includes(id))
     }
 
     const deployments: Deployment[] = []
