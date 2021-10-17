@@ -49,7 +49,7 @@ function Main(): JSX.Element {
 
   useInterval(async () => {
     setDeployments(await fetchDeployments(username, ignoredTeamIDs))
-  }, 1000)
+  }, 2000)
 
   return (
     <List isLoading={!deployments}>
