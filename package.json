@@ -25,8 +25,8 @@
           "name": "ignoredTeams",
           "type": "textfield",
           "required": false,
-          "title": "Ignored Team IDs (separated by commas)",
-          "description": "Teams IDs to ignore (separated by commas)"
+          "title": "Ignored Team IDs",
+          "description": "separated by commas"
         }
       ]
     }
