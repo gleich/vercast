@@ -81,6 +81,9 @@ function Main(): JSX.Element {
             iconSource = Icon.XmarkCircle
             iconTintColor = Color.Red
             break
+          case DeploymentState.canceled:
+            iconSource = Icon.XmarkCircle
+            iconTintColor = Color.SecondaryText
         }
         const randomID = randomUUID()
         return (

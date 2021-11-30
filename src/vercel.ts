@@ -12,6 +12,7 @@ export enum DeploymentState {
   ready,
   failed,
   deploying,
+  canceled,
 }
 
 export interface Deployment {
@@ -99,7 +100,11 @@ async function rawFetchDeployments(
               break
             case 'BUILDING':
             case 'QUEUED':
+            case 'INITIALIZING':
               state = DeploymentState.deploying
+              break
+            case 'CANCELED':
+              state = DeploymentState.canceled
               break
             default:
               state = DeploymentState.failed
